@@ -7,17 +7,22 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.concurrent.TimeUnit;
+
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     Button startButton, stopButton, pauseButton, resetButton;
-    long elapsedTime;
+    long startTime, currenTime;
     boolean isRunning = false;
     TextView timeTextView;
+    Handler handler = new Handler();
 
 
 
@@ -48,10 +53,43 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         mTextMessage = findViewById(R.id.message);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        timeTextView = (TextView) findViewById(R.id.tvTime);
+
+
+
+
+    }
+
+
+    public void displayTime(long millis){
+
+        long minutes = (millis / 1000) / 60;
+        long seconds = (millis / 1000) % 60;
+        long milliseconds = (millis % 1000) / 10 ;
+
+        String time = String.format("%02d:%02d:%02d",
+                minutes, seconds, milliseconds);
+        timeTextView.setText(time);
     }
 
     public void startTimer(View view){
 
+
+        startTime = System.currentTimeMillis();
+        currenTime = System.currentTimeMillis() - startTime;
+
+
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                currenTime = System.currentTimeMillis() - startTime;
+                displayTime(currenTime);
+                handler.postDelayed(this, 60);
+            }
+        };
+
+        handler.postDelayed(r, 60);
 
     }
 
