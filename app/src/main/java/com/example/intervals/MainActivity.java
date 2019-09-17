@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     Button startButton, stopButton, pauseButton, resetButton;
     long startTime, currenTime;
+    long pausedTime = 0;
     boolean isRunning = false;
     TextView timeTextView;
     Handler handler = new Handler();
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     }
 
 
@@ -73,37 +75,53 @@ public class MainActivity extends AppCompatActivity {
         timeTextView.setText(time);
     }
 
+
+    /**
+     * Starts timer and displays it on the screen
+     * @param view The button that triggers the method
+     */
     public void startTimer(View view){
 
+        if(!isRunning) {
 
-        startTime = System.currentTimeMillis();
-        currenTime = System.currentTimeMillis() - startTime;
+            isRunning = true;
+            startTime = System.currentTimeMillis();
+            currenTime = System.currentTimeMillis() + pausedTime - startTime;
 
+            final Runnable r = new Runnable() {
+                public void run() {
+                    if(isRunning) {
+                        currenTime = System.currentTimeMillis() + pausedTime - startTime;
+                        displayTime(currenTime);
+                        handler.postDelayed(this, 60);
+                    }
+                }
+            };
 
+            handler.postDelayed(r, 60);
 
-        final Runnable r = new Runnable() {
-            public void run() {
-                currenTime = System.currentTimeMillis() - startTime;
-                displayTime(currenTime);
-                handler.postDelayed(this, 60);
-            }
-        };
-
-        handler.postDelayed(r, 60);
+        }
 
     }
 
-    public void stopTimer(View view){
-
-
-    }
 
     public void pauseTimer(View view){
+
+        if(isRunning){
+
+            pausedTime = currenTime;
+            isRunning = false;
+        }
+
 
     }
 
     public void resetTimer(View view){
-
+        if(isRunning){
+            displayTime(0);
+            pausedTime = 0;
+            isRunning = false;
+        }
     }
 
 }
