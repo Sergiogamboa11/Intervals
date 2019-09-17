@@ -12,8 +12,10 @@ import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     boolean isRunning = false;
     TextView timeTextView;
     Handler handler = new Handler();
+    ListView timeListView;
 
 
 
@@ -56,20 +59,31 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         timeTextView = (TextView) findViewById(R.id.tvTime);
+        timeListView = (ListView) findViewById(R.id.timeListView);
 
+        Interval a = new Interval("10:00","Run");
+        Interval a2 = new Interval("10:30","Walk");
+        Interval a3 = new Interval("11:00","Run");
 
+        ArrayList<Interval> intervalList = new ArrayList<>();
+        intervalList.add(a);
+        intervalList.add(a2);
+        intervalList.add(a3);
 
-
+        IntervalListViewAdapter adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
+        timeListView.setAdapter(adapter);
 
     }
 
 
+    /**
+     * Takes a long variable and displays it in the TextView as MM:SS:NN
+     * @param millis The time to be converted and displayed
+     */
     public void displayTime(long millis){
-
         long minutes = (millis / 1000) / 60;
         long seconds = (millis / 1000) % 60;
         long milliseconds = (millis % 1000) / 10 ;
-
         String time = String.format("%02d:%02d:%02d",
                 minutes, seconds, milliseconds);
         timeTextView.setText(time);
@@ -81,13 +95,10 @@ public class MainActivity extends AppCompatActivity {
      * @param view The button that triggers the method
      */
     public void startTimer(View view){
-
         if(!isRunning) {
-
             isRunning = true;
             startTime = System.currentTimeMillis();
             currenTime = System.currentTimeMillis() + pausedTime - startTime;
-
             final Runnable r = new Runnable() {
                 public void run() {
                     if(isRunning) {
@@ -97,31 +108,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             };
-
             handler.postDelayed(r, 60);
-
         }
-
     }
 
-
     public void pauseTimer(View view){
-
         if(isRunning){
-
             pausedTime = currenTime;
             isRunning = false;
         }
-
-
     }
 
     public void resetTimer(View view){
-        if(isRunning){
-            displayTime(0);
-            pausedTime = 0;
-            isRunning = false;
-        }
+        displayTime(0);
+        pausedTime = 0;
+        isRunning = false;
     }
 
 }
