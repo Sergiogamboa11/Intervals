@@ -1,8 +1,10 @@
 package com.example.intervals;
 
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,9 +30,14 @@ public class MainActivity extends AppCompatActivity {
     boolean isRunning = false;
     TextView timeTextView;
     Handler handler = new Handler();
+    Handler soundHandler = new Handler();
     ListView timeListView;
 
     ArrayList<Interval> intervalList;
+
+    SoundPool soundPool;
+    MediaPlayer mediaPlayer;
+    int alert1, alert2;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -65,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         Interval a = new Interval("00:05","Run1");
-        Interval a2 = new Interval("10:30","Walk");
-        Interval a3 = new Interval("11:00","Run");
+        Interval a2 = new Interval("00:10","Walk");
+        Interval a3 = new Interval("00:17","Run");
         Interval a4 = new Interval("10:00","Run");
         Interval a5 = new Interval("10:30","Walk");
         Interval a6 = new Interval("11:00","Run");
@@ -101,13 +108,15 @@ public class MainActivity extends AppCompatActivity {
 
         long minutes = (currenTime / 1000) / 60;
         long seconds = (currenTime / 1000) % 60;
+        long milliseconds = (currenTime % 1000) ;
         String time = String.format("%02d:%02d",
                 minutes, seconds);
 
         for(int i = 0; i < list.size(); i++){
 //            Log.e("ERRCHK", list.get(i).getAction() + "");
 
-            if(list.get(i).getTime().equals(time)) {
+            if(list.get(i).getTime().equals(time) && milliseconds < 100) { // only play if time matches and its in the earlier part of the second (avoids multiple alarms)
+                play();
             }
 
         }
@@ -138,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             isRunning = true;
             startTime = System.currentTimeMillis();
             currenTime = System.currentTimeMillis() + pausedTime - startTime;
+
             final Runnable r = new Runnable() {
                 public void run() {
                     if(isRunning) {
@@ -149,6 +159,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             handler.postDelayed(r, 60);
+            
+        }
+    }
+
+    public void play() {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.alertsimple);
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    stopPlayer();
+                }
+            });
+        }
+        mediaPlayer.start();
+    }
+
+    private void stopPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
     }
 
