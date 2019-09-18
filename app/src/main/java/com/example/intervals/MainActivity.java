@@ -1,5 +1,8 @@
 package com.example.intervals;
 
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -8,15 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
 
 import android.os.Handler;
-import android.os.Message;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
     ListView timeListView;
 
-
+    ArrayList<Interval> intervalList;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -61,20 +63,57 @@ public class MainActivity extends AppCompatActivity {
         timeTextView = (TextView) findViewById(R.id.tvTime);
         timeListView = (ListView) findViewById(R.id.timeListView);
 
-        Interval a = new Interval("10:00","Run");
+
+        Interval a = new Interval("00:05","Run1");
         Interval a2 = new Interval("10:30","Walk");
         Interval a3 = new Interval("11:00","Run");
+        Interval a4 = new Interval("10:00","Run");
+        Interval a5 = new Interval("10:30","Walk");
+        Interval a6 = new Interval("11:00","Run");
+        Interval a7 = new Interval("10:00","Run");
+        Interval a8 = new Interval("10:30","Walk");
+        Interval a9 = new Interval("11:00","Run");
+        Interval a10 = new Interval("10:00","Run");
+        Interval a11 = new Interval("10:30","Walk");
+        Interval a12 = new Interval("11:00","Run12");
 
-        ArrayList<Interval> intervalList = new ArrayList<>();
+        intervalList = new ArrayList<>();
         intervalList.add(a);
         intervalList.add(a2);
         intervalList.add(a3);
+        intervalList.add(a4);
+        intervalList.add(a5);
+        intervalList.add(a6);
+        intervalList.add(a7);
+        intervalList.add(a8);
+        intervalList.add(a9);
+        intervalList.add(a10);
+        intervalList.add(a11);
+        intervalList.add(a12);
 
         IntervalListViewAdapter adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
         timeListView.setAdapter(adapter);
 
     }
 
+
+    public boolean checkTime(ArrayList<Interval> list, long currenTime){
+
+        long minutes = (currenTime / 1000) / 60;
+        long seconds = (currenTime / 1000) % 60;
+        String time = String.format("%02d:%02d",
+                minutes, seconds);
+
+        for(int i = 0; i < list.size(); i++){
+//            Log.e("ERRCHK", list.get(i).getAction() + "");
+
+            if(list.get(i).getTime().equals(time)) {
+            }
+
+        }
+
+        return false;
+    }
 
     /**
      * Takes a long variable and displays it in the TextView as MM:SS:NN
@@ -104,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     if(isRunning) {
                         currenTime = System.currentTimeMillis() + pausedTime - startTime;
                         displayTime(currenTime);
+                        checkTime(intervalList, currenTime);
                         handler.postDelayed(this, 60);
                     }
                 }
