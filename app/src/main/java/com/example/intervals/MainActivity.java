@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     long startTime, currenTime;
     long pausedTime = 0;
     boolean isRunning = false;
-    TextView timeTextView;
+    TextView timeTextView, actionTextView;
     Handler handler = new Handler();
     Handler soundHandler = new Handler();
     ListView timeListView;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     SoundPool soundPool;
     MediaPlayer mediaPlayer;
     int alert1, alert2;
+    IntervalListViewAdapter adapter;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -68,14 +70,16 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         timeTextView = (TextView) findViewById(R.id.tvTime);
+        actionTextView = (TextView) findViewById(R.id.tvAction);
+
         timeListView = (ListView) findViewById(R.id.timeListView);
 
 
         Interval a = new Interval("00:05","Run1");
         Interval a2 = new Interval("00:10","Walk");
         Interval a3 = new Interval("00:17","Run");
-        Interval a4 = new Interval("10:00","Run");
-        Interval a5 = new Interval("10:30","Walk");
+        Interval a4 = new Interval("00:20","Walk");
+        Interval a5 = new Interval("00:25","Skip");
         Interval a6 = new Interval("11:00","Run");
         Interval a7 = new Interval("10:00","Run");
         Interval a8 = new Interval("10:30","Walk");
@@ -98,11 +102,9 @@ public class MainActivity extends AppCompatActivity {
         intervalList.add(a11);
         intervalList.add(a12);
 
-        IntervalListViewAdapter adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
+        adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
         timeListView.setAdapter(adapter);
-
     }
-
 
     public boolean checkTime(ArrayList<Interval> list, long currenTime){
 
@@ -113,9 +115,11 @@ public class MainActivity extends AppCompatActivity {
                 minutes, seconds);
 
         for(int i = 0; i < list.size(); i++){
-//            Log.e("ERRCHK", list.get(i).getAction() + "");
-
             if(list.get(i).getTime().equals(time) && milliseconds < 100) { // only play if time matches and its in the earlier part of the second (avoids multiple alarms)
+                String temp = intervalList.get(i).getAction();
+                actionTextView.setText( temp+ "");
+                intervalList.remove(i);
+                adapter.notifyDataSetChanged();
                 play();
             }
 
@@ -132,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         long minutes = (millis / 1000) / 60;
         long seconds = (millis / 1000) % 60;
         long milliseconds = (millis % 1000) / 10 ;
-        String time = String.format("%02d:%02d:%02d",
+        String time = String.format("%02d:%02d.%02d",
                 minutes, seconds, milliseconds);
         timeTextView.setText(time);
     }
@@ -163,9 +167,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void pauseTimer(View view){
+        if(isRunning){
+            pausedTime = currenTime;
+            isRunning = false;
+        }
+    }
+
+    public void resetTimer(View view){
+        displayTime(0);
+        pausedTime = 0;
+        isRunning = false;
+    }
+
+
     public void play() {
         if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.alertsimple);
+            mediaPlayer = MediaPlayer.create(this, R.raw.alerthighintensity);
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -183,17 +201,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void pauseTimer(View view){
-        if(isRunning){
-            pausedTime = currenTime;
-            isRunning = false;
-        }
-    }
-
-    public void resetTimer(View view){
-        displayTime(0);
-        pausedTime = 0;
-        isRunning = false;
-    }
 
 }
