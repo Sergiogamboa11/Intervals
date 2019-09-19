@@ -1,10 +1,7 @@
 package com.example.intervals;
 
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -13,19 +10,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
-    Button startButton, stopButton, pauseButton, resetButton;
+    Button startButton, pauseButton, resetButton;
     long startTime, currenTime;
     long pausedTime = 0;
     boolean isRunning = false;
@@ -34,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     Handler soundHandler = new Handler();
     ListView timeListView;
 
-    ArrayList<Interval> intervalList;
+    ArrayList<Interval> intervalList, rawIntervalList;
 
     SoundPool soundPool;
     MediaPlayer mediaPlayer;
@@ -48,10 +43,25 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_stopwatch:
-                    mTextMessage.setText(R.string.title_stopwatch);
+
+                    timeTextView.setVisibility(View.VISIBLE);
+                    actionTextView.setVisibility(View.VISIBLE);
+                    timeListView.setVisibility(View.VISIBLE);
+                    startButton.setVisibility(View.VISIBLE);
+                    pauseButton.setVisibility(View.VISIBLE);
+                    resetButton.setVisibility(View.VISIBLE);
+//                    mTextMessage.setText(R.string.title_stopwatch);
                     return true;
                 case R.id.navigation_presets:
-                    mTextMessage.setText(R.string.title_presets);
+
+                    timeTextView.setVisibility(View.INVISIBLE);
+                    actionTextView.setVisibility(View.INVISIBLE);
+                    timeListView.setVisibility(View.INVISIBLE);
+                    startButton.setVisibility(View.INVISIBLE);
+                    pauseButton.setVisibility(View.INVISIBLE);
+                    resetButton.setVisibility(View.INVISIBLE);
+
+//                    mTextMessage.setText(R.string.title_presets);
                     return true;
             }
             return false;
@@ -63,13 +73,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        mTextMessage = findViewById(R.id.message);
+//        mTextMessage = findViewById(R.id.message);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         timeTextView = (TextView) findViewById(R.id.tvTime);
         actionTextView = (TextView) findViewById(R.id.tvAction);
-
         timeListView = (ListView) findViewById(R.id.timeListView);
+        startButton = (Button) findViewById(R.id.btnStart);
+        pauseButton = (Button) findViewById(R.id.btnPause);
+        resetButton = (Button) findViewById(R.id.btnReset);
 
 
         Interval a = new Interval("00:05","Run1");
@@ -98,16 +110,17 @@ public class MainActivity extends AppCompatActivity {
         intervalList.add(a10);
         intervalList.add(a11);
         intervalList.add(a12);
+        rawIntervalList = (ArrayList<Interval>)intervalList.clone();
 
         adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
         timeListView.setAdapter(adapter);
     }
 
-    public boolean checkTime(ArrayList<Interval> list, long currenTime){
+    public boolean checkTime(ArrayList<Interval> list, long currentTime){
 
-        long minutes = (currenTime / 1000) / 60;
-        long seconds = (currenTime / 1000) % 60;
-        long milliseconds = (currenTime % 1000) ;
+        long minutes = (currentTime / 1000) / 60;
+        long seconds = (currentTime / 1000) % 60;
+        long milliseconds = (currentTime % 1000) ;
         String time = String.format("%02d:%02d",
                 minutes, seconds);
 
@@ -119,9 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
                 play();
             }
-
         }
-
         return false;
     }
 
@@ -137,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
                 minutes, seconds, milliseconds);
         timeTextView.setText(time);
     }
-
 
     /**
      * Starts timer and displays it on the screen
@@ -175,9 +185,12 @@ public class MainActivity extends AppCompatActivity {
         displayTime(0);
         pausedTime = 0;
         isRunning = false;
+        intervalList = (ArrayList<Interval>)rawIntervalList.clone();
+        adapter = new IntervalListViewAdapter(this, R.layout.interval_adapter_layout, intervalList);
+        timeListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
-
-
+    
     public void play() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(this, R.raw.alerthighintensity);
@@ -197,6 +210,5 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = null;
         }
     }
-
 
 }
