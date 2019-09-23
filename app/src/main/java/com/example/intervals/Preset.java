@@ -2,12 +2,12 @@ package com.example.intervals;
 
 import java.util.ArrayList;
 
-public class Presets {
+public class Preset {
 
     String name;
     ArrayList<Interval> list;
 
-    public Presets(String name, ArrayList<Interval> list) {
+    public Preset(String name, ArrayList<Interval> list) {
         this.name = name;
         this.list = list;
     }

@@ -23,16 +23,10 @@ public class StopwatchFragment extends Fragment {
     TextView timeTextView, actionTextView;
     ArrayList<Interval> intervalList, rawIntervalList;
     IntervalListViewAdapter adapter;
-
     long startTime, currenTime;
     long pausedTime = 0;
     boolean isRunning = false;
-
-
-
     Handler handler = new Handler();
-
-
     MediaPlayer mediaPlayer;
 
     public interface  FragmentStopwatchListener{
@@ -46,39 +40,38 @@ public class StopwatchFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_stopwatch, container, false);
 
-        timeTextView = (TextView) view.findViewById(R.id.tvTime);
-        actionTextView = (TextView)  view.findViewById(R.id.tvAction);
-        timeListView = (ListView)  view.findViewById(R.id.timeListView);
-        startButton = (Button)  view.findViewById(R.id.btnStart);
+        timeTextView = view.findViewById(R.id.tvTime);
+        actionTextView = view.findViewById(R.id.tvAction);
+        timeListView = view.findViewById(R.id.timeListView);
 
+        startButton = view.findViewById(R.id.btnStart);
         startButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                startTimer(v);
+                startTimer();
             }
         });
 
 
-        pauseButton = (Button)  view.findViewById(R.id.btnPause);
-
+        pauseButton = view.findViewById(R.id.btnPause);
         pauseButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                pauseTimer(v);
+                pauseTimer();
             }
         });
-        resetButton = (Button)  view.findViewById(R.id.btnReset);
 
+        resetButton = view.findViewById(R.id.btnReset);
         resetButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                resetTimer(v);
+                resetTimer();
             }
         });
 
@@ -154,7 +147,7 @@ public class StopwatchFragment extends Fragment {
      * Starts timer and displays it on the screen
      * @param view The button that triggers the method
      */
-    public void startTimer(View view){
+    public void startTimer(){
         if(!isRunning) {
             isRunning = true;
             startTime = System.currentTimeMillis();
@@ -175,14 +168,14 @@ public class StopwatchFragment extends Fragment {
         }
     }
 
-    public void pauseTimer(View view){
+    public void pauseTimer(){
         if(isRunning){
             pausedTime = currenTime;
             isRunning = false;
         }
     }
 
-    public void resetTimer(View view){
+    public void resetTimer(){
         displayTime(0);
         pausedTime = 0;
         isRunning = false;
