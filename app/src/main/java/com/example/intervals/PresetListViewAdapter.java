@@ -7,10 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class PresetListViewAdapter extends ArrayAdapter<Interval> {
+public class PresetListViewAdapter extends ArrayAdapter<Interval> implements NumberPicker.OnValueChangeListener {
 
 
     private Context mContext;
@@ -35,10 +36,14 @@ public class PresetListViewAdapter extends ArrayAdapter<Interval> {
 
         NumberPicker numberPickerMin = (NumberPicker) convertView.findViewById(R.id.minutesPicker);
         NumberPicker numberPickerSec = (NumberPicker) convertView.findViewById(R.id.secondsPicker);
+        numberPickerMin.setMinValue(0);
+        numberPickerMin.setMaxValue(59);
+        numberPickerSec.setMinValue(0);
+        numberPickerSec.setMaxValue(59);
+        numberPickerMin.setOnValueChangedListener(this);
+        numberPickerSec.setOnValueChangedListener(this);
         TextView actionIn = (TextView) convertView.findViewById(R.id.actionInput);
-
-
-
+        
 //        TextView tvTime = (TextView) convertView.findViewById(R.id.timeTextView);
 //        TextView tvAction = (TextView) convertView.findViewById(R.id.actionTextView);
 //
@@ -46,5 +51,12 @@ public class PresetListViewAdapter extends ArrayAdapter<Interval> {
 //        tvAction.setText(action);
 
         return convertView;
+    }
+
+
+    @Override
+    public void onValueChange(NumberPicker numberPicker, int i, int i1) { //i is current val, i1 is prev
+        Toast.makeText(mContext, "Prev: " + i1 + " New: " + i1, Toast.LENGTH_SHORT).show();
+
     }
 }
